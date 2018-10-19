@@ -1,12 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
 
-const knex = require('knex');
-const knexConfig = require('./knexfile.js');
-
-const db = knex(knexConfig.development);
 const server = express();
 
 server.use(express.json());
