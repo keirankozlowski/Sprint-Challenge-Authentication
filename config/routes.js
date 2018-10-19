@@ -34,8 +34,8 @@ function register(request, response) {
   db('users')
     .insert(credentials)
     .then(ids => {
-      const token = generateToken({ username: credentials.username });
       const id = ids[0];
+      const token = generateToken(user);
       return response
         .status(201)
         .json({ ids: id, token });
@@ -78,10 +78,10 @@ function getJokes(request, response) {
     .get(
       'https://08ad1pao69.execute-api.us-east-1.amazonaws.com/dev/random_ten'
     )
-    .then(response => {
+    .then(res => {
       return response
         .status(200)
-        .json(response.data);
+        .json(res.data);
     })
     .catch(err => {
       return response
