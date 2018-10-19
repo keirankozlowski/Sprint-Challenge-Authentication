@@ -1,12 +1,9 @@
 const axios = require('axios');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const jwtSecret = require("../_secrets/keys").jwtKey;
 
-const knex = require('knex');
-const knexConfig = require('../knexfile.js');
-
-const db = knex(knexConfig.development);
-
+const db = require('../database/dbConfig');
 const { authenticate } = require('./middlewares');
 
 module.exports = server => {
@@ -24,8 +21,8 @@ function generateToken(user) {
   const jwtOptions = {
     expiresIn: '15m'
   }
-  console.log(jwtKey);
-  return jwt.sign(jwtPayload, jwtKey, jwtOptions);
+
+  return jwt.sign(jwtPayload, jwtSecret, jwtOptions);
 }
 
 function register(request, response) {
@@ -37,10 +34,11 @@ function register(request, response) {
   db('users')
     .insert(credentials)
     .then(ids => {
+      const token = generateToken({ username: credentials.username });
       const id = ids[0];
       return response
         .status(201)
-        .json({ newUserInfo: credentials });
+        .json({ ids: id, token });
     })
     .catch(() => {
       return response
@@ -56,6 +54,7 @@ function login(request, response) {
     .where({ username: credentials.username })
     .first()
     .then(user => {
+      console.log(user, credentials);
       if (!user || !bcrypt.compareSync(credentials.password, user.password)) {
         return response
           .status(401)
@@ -68,7 +67,6 @@ function login(request, response) {
       }
     })
     .catch(() => {
-      console.log(request.body);
       return response
         .status(500)
         .json({ Error: "There was an error while logging in." })
