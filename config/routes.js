@@ -35,10 +35,9 @@ function register(request, response) {
     .insert(credentials)
     .then(ids => {
       const id = ids[0];
-      const token = generateToken(user);
       return response
         .status(201)
-        .json({ ids: id, token });
+        .json({ ids: id });
     })
     .catch(() => {
       return response
